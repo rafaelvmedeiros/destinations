@@ -1,6 +1,8 @@
 import * as _ from "lodash";
 import isArrayEmpty from "../util/validate";
-import formatBRL from "../util/format";
+import formatBRL from "./format";
+
+import { getAllocatedPowerByUnit } from "./unit";
 
 const states = [
   "Espírito Santo",
@@ -56,58 +58,6 @@ function agroupByState(contracts, state) {
       sourceContractId: currentContract.sourceContractId,
       destinations: currentContract.destinations,
     });
-  }, []);
-}
-
-function getAllocatedPowerByUnit(agroupedByState, header) {
-  const agroupedUnits = agroupedByState.reduce((newItem, currentItem) => {
-    const { destinations } = currentItem;
-    const destination = destinations.map((item) => {
-      return {
-        ...item,
-        sourceContractId: currentItem.sourceContractId,
-      };
-    });
-
-    if (isArrayEmpty(destination)) return newItem;
-    return newItem.concat(destination);
-  }, []);
-
-  const sameUnit = _.groupBy(agroupedUnits, "unitName");
-
-  return Object.values(sameUnit).reduce((newItem, currentItem) => {
-    const unit = currentItem.reduce(
-      (newUnit, currentUnit) => {
-        const contracts = header.reduce((newHeader, currentHeader) => {
-          if (currentUnit.sourceContractId !== currentHeader.sourceContractId) {
-            return newHeader.concat("-");
-          }
-
-          return newHeader.concat(
-            currentUnit.allocatedPower ? currentUnit.allocatedPower : "-"
-          );
-        }, []);
-
-        return {
-          unitName: currentUnit.unitName,
-          icms_value: newUnit.icms_value + currentUnit.ICMSCost,
-          cost: 123.9,
-          deficit: 12,
-          contracts,
-        };
-      },
-      {
-        unitName: "",
-        icms_value: 232.0,
-        cost: 123.9,
-        deficit: 12,
-        contracts: [],
-      }
-    );
-
-    if (Object.keys(unit).length <= 0) return newItem;
-
-    return newItem.concat(unit);
   }, []);
 }
 
