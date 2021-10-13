@@ -1,8 +1,12 @@
-const { format: formatBRL } = new Intl.NumberFormat("pt-BR", {
+const { format } = new Intl.NumberFormat("pt-BR", {
   style: "currency",
   currency: "BRL",
 });
 
-export default function format(money) {
-  return formatBRL(money);
+export function formatToBRL(money) {
+  return format(money);
+}
+
+export function formatWithoutBRL(money) {
+  return format(money).replace("R$", "");
 }

@@ -1,6 +1,6 @@
 import * as _ from "lodash";
 import isArrayEmpty from "../util/validate";
-import formatBRL from "./format";
+import { formatToBRL, formatWithoutBRL } from "./format";
 
 import { getAllocatedPowerByUnit } from "./unit";
 
@@ -29,7 +29,7 @@ function getInitialsOfState(state) {
 function createHeader(data) {
   return data.map((item) => ({
     sourceName: item.sourceName,
-    availablePower: `R$ ${formatBRL(item.availablePower)} MW/h`,
+    availablePower: `${formatToBRL(item.availablePower)} MW/h`,
     sourceContractId: item.sourceContractId,
   }));
 }
@@ -41,7 +41,7 @@ function getAllocatedPowerByContract(data, states) {
     );
 
     if (!selectedContract) return "-";
-    return selectedContract.allocatedPower;
+    return formatWithoutBRL(selectedContract.allocatedPower);
   }, []);
 }
 

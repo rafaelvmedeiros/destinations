@@ -1,5 +1,6 @@
 import * as _ from "lodash";
 import isArrayEmpty from "../util/validate";
+import { formatWithoutBRL } from "./format";
 
 function associateContractIdToUnit(data) {
   return data.reduce((newItem, currentItem) => {
@@ -33,7 +34,7 @@ function checkIfContractHasUnit(agroupedUnits, header) {
 
     return newHeader.concat(
       unitHasSameSourceContract.allocatedPower
-        ? unitHasSameSourceContract.allocatedPower
+        ? formatWithoutBRL(unitHasSameSourceContract.allocatedPower)
         : "-"
     );
   }, []);
