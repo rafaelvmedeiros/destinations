@@ -9,21 +9,23 @@ import Paper from "@material-ui/core/Paper";
 import Header from "../../components/Table/Header";
 import Body from "../../components/Table/Body";
 
-import getSourcers from "../../util/sources";
+import { getContracts, getDestinations } from "../../util/sources";
 import createTable from "../../util/table";
 
 function TableUI() {
   const [contracts, setContracts] = useState({});
 
   useEffect(() => {
-    async function getContracts() {
-      const sources = await getSourcers();
-      const data = createTable(sources);
+    async function fetchData() {
+      const contracts = await getContracts();
+      const destinations = await getDestinations();
+
+      const data = createTable({ contracts, destinations });
 
       setContracts(data);
     }
 
-    getContracts();
+    fetchData();
   }, []);
 
   return Object.keys(contracts).length ? (

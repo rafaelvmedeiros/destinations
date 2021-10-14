@@ -40,38 +40,50 @@ function checkIfContractHasUnit(agroupedUnits, header) {
   }, []);
 }
 
-function concatUnits(data, header) {
+function findConsumptionById(data, unitId) {
+  const { consumption } = data.find((item) => item.unitId === unitId);
+
+  return consumption ? consumption : 0;
+}
+
+function concatUnits(data, header, destinations) {
   return data.reduce(
     (newUnit, currentUnit, _, array) => {
-      const contracts = checkIfContractHasUnit(array, header);
+      const contracts = checkIfContractHasUnit(array, header, destinations);
+      const deficitPeerUnit = formatWithoutBRL(
+        findConsumptionById(destinations, currentUnit.unitId)
+      );
 
       return {
         unitName: currentUnit.unitName,
         icms_value: newUnit.icms_value + currentUnit.ICMSCost,
         cost: 123.9,
-        deficit: 12,
+        deficit: deficitPeerUnit,
         contracts,
       };
     },
     {
       unitName: "",
-      icms_value: 232.0,
-      cost: 123.9,
-      deficit: 12,
+      icms_value: 0,
+      cost: 0,
+      deficit: 0,
       contracts: [],
     }
   );
 }
 
-export function getAllocatedPowerByUnit(agroupedByState, header) {
+export function getAllocatedPowerByUnit(agroupedByState, header, destinations) {
   const agroupedUnits = associateContractIdToUnit(agroupedByState);
   const unitByGroup = _.groupBy(agroupedUnits, "unitName");
 
   return Object.values(unitByGroup).reduce((newItem, currentItem) => {
-    const unit = concatUnits(currentItem, header);
+    const unit = concatUnits(currentItem, header, destinations);
 
     if (Object.keys(unit).length <= 0) return newItem;
 
-    return newItem.concat(unit);
+    return newItem.concat({
+      ...unit,
+      icms_value: formatWithoutBRL(unit.icms_value),
+    });
   }, []);
 }

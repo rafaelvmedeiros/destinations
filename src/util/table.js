@@ -1,6 +1,6 @@
 import * as _ from "lodash";
 import isArrayEmpty from "../util/validate";
-import { formatToBRL, formatWithoutBRL } from "./format";
+import { formatToBRL, formatWithoutBRL, parseStringToFloat } from "./format";
 
 import { getAllocatedPowerByUnit } from "./unit";
 
@@ -61,23 +61,31 @@ function agroupByState(contracts, state) {
   }, []);
 }
 
-function createColumns(contracts, header) {
+function createColumns(contracts, header, destinations) {
   return states.reduce((newState, currentState) => {
     const agroupedByState = agroupByState(contracts, currentState);
     if (isArrayEmpty(agroupedByState)) return newState;
 
-    const units = getAllocatedPowerByUnit(agroupedByState, header);
+    const units = getAllocatedPowerByUnit(
+      agroupedByState,
+      header,
+      destinations
+    );
 
     const allocatedContracts = getAllocatedPowerByContract(
       header,
       agroupedByState
     );
 
+    const deficit = units.reduce((newUnit, currentUnit) => {
+      return newUnit + parseStringToFloat(currentUnit.deficit);
+    }, 0);
+
     const selectedState = {
       stateName: getInitialsOfState(currentState),
       icms_value: 0,
       cost: 0,
-      deficit: 0,
+      deficit: formatWithoutBRL(deficit),
       allocatedContracts,
       units,
     };
@@ -86,9 +94,9 @@ function createColumns(contracts, header) {
   }, []);
 }
 
-function createTable(data) {
-  const header = createHeader(data);
-  const columns = createColumns(data, header);
+function createTable({ contracts, destinations }) {
+  const header = createHeader(contracts);
+  const columns = createColumns(contracts, header, destinations);
 
   return { header, columns };
 }

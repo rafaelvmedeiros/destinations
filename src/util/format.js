@@ -8,5 +8,9 @@ export function formatToBRL(money) {
 }
 
 export function formatWithoutBRL(money) {
-  return format(money).replace("R$", "");
+  return format(money).replace("R$", "").trim();
+}
+
+export function parseStringToFloat(money) {
+  return Number(money.replace(/[^0-9\.]+/g, ""));
 }
