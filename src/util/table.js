@@ -40,7 +40,7 @@ function getAllocatedPowerByContract(data, states) {
       (state) => state.sourceContractId === contract.sourceContractId
     );
 
-    if (!selectedContract) return "-";
+    if (!selectedContract) return null;
     return formatWithoutBRL(selectedContract.allocatedPower);
   }, []);
 }
@@ -77,15 +77,15 @@ function createColumns(contracts, header, destinations) {
       agroupedByState
     );
 
-    const deficit = units.reduce((newUnit, currentUnit) => {
-      return newUnit + parseStringToFloat(currentUnit.deficit);
+    const costPeerUnit = units.reduce((newUnit, currentUnit) => {
+      return newUnit + parseStringToFloat(currentUnit.cost);
     }, 0);
 
     const selectedState = {
       stateName: getInitialsOfState(currentState),
       icms_value: 0,
-      cost: 0,
-      deficit: formatWithoutBRL(deficit),
+      cost: formatWithoutBRL(costPeerUnit),
+      deficit: 0,
       allocatedContracts,
       units,
     };

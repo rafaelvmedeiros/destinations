@@ -29,36 +29,36 @@ function checkIfContractHasUnit(agroupedUnits, header) {
       unitHasSameSourceContract.sourceContractId !==
         currentHeader.sourceContractId
     ) {
-      return newHeader.concat("-");
+      return newHeader.concat(null);
     }
 
     return newHeader.concat(
       unitHasSameSourceContract.allocatedPower
         ? formatWithoutBRL(unitHasSameSourceContract.allocatedPower)
-        : "-"
+        : null
     );
   }, []);
 }
 
 function findConsumptionById(data, unitId) {
   const { consumption } = data.find((item) => item.unitId === unitId);
-
   return consumption ? consumption : 0;
 }
 
 function concatUnits(data, header, destinations) {
   return data.reduce(
     (newUnit, currentUnit, _, array) => {
-      const contracts = checkIfContractHasUnit(array, header, destinations);
-      const deficitPeerUnit = formatWithoutBRL(
+      const contracts = checkIfContractHasUnit(array, header);
+      const consumptionPeerUnit = formatWithoutBRL(
         findConsumptionById(destinations, currentUnit.unitId)
       );
 
       return {
         unitName: currentUnit.unitName,
+        unitId: currentUnit.unitId,
         icms_value: newUnit.icms_value + currentUnit.ICMSCost,
-        cost: 123.9,
-        deficit: deficitPeerUnit,
+        cost: consumptionPeerUnit,
+        deficit: 0,
         contracts,
       };
     },

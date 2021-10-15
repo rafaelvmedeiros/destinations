@@ -15,28 +15,120 @@ import createTable from "../../util/table";
 function TableUI() {
   const [contracts, setContracts] = useState({});
 
+  async function fetchData() {
+    const contracts = await getContracts();
+    const destinations = await getDestinations();
+    const data = createTable({ contracts, destinations });
+    setContracts(data);
+  }
+
   useEffect(() => {
-    async function fetchData() {
-      const contracts = await getContracts();
-      const destinations = await getDestinations();
-
-      const data = createTable({ contracts, destinations });
-
-      setContracts(data);
-    }
-
     fetchData();
   }, []);
+
+  function updateContracts(contract) {
+    const listOfContracts = [
+      ...contracts.columns.map((item) => {
+        if (item.stateName === contract.stateName) {
+          return {
+            ...contract,
+          };
+        }
+        return item;
+      }),
+    ];
+
+    setContracts({ ...contracts, columns: listOfContracts });
+  }
+
+  function filterUnitsByIcms(icms) {
+    if (!icms) {
+      return fetchData();
+    }
+
+    const filteredUnitsByIcms = contracts.columns.reduce(
+      (newContract, currentContract) => {
+        const filtered = currentContract.units.filter((unit) => {
+          return unit.icms_value === icms.trim();
+        });
+
+        if (Array.isArray(filtered) && filtered.length <= 0) {
+          return newContract;
+        }
+        return newContract.concat({ ...currentContract, units: filtered });
+      },
+      []
+    );
+
+    setContracts({ ...contracts, columns: filteredUnitsByIcms });
+  }
+
+  function filterUnitsByCost(cost) {
+    if (!cost) {
+      return fetchData();
+    }
+
+    const filteredUnitsByIcms = contracts.columns.reduce(
+      (newContract, currentContract) => {
+        const filtered = currentContract.units.filter((unit) => {
+          return unit.cost === cost.trim();
+        });
+
+        if (Array.isArray(filtered) && filtered.length <= 0) {
+          return newContract;
+        }
+        return newContract.concat({ ...currentContract, units: filtered });
+      },
+      []
+    );
+
+    setContracts({ ...contracts, columns: filteredUnitsByIcms });
+  }
+
+  function filterUnitsByDeficit(deficit) {
+    if (!deficit) {
+      return fetchData();
+    }
+
+    const filteredUnitsByIcms = contracts.columns.reduce(
+      (newContract, currentContract) => {
+        const filtered = currentContract.units.filter((unit) => {
+          return unit.deficit === deficit.trim();
+        });
+
+        if (Array.isArray(filtered) && filtered.length <= 0) {
+          return newContract;
+        }
+        return newContract.concat({ ...currentContract, units: filtered });
+      },
+      []
+    );
+
+    setContracts({ ...contracts, columns: filteredUnitsByIcms });
+  }
 
   return Object.keys(contracts).length ? (
     <TableContainer component={Paper}>
       <Table aria-label="collapsible table">
-        <Header header={contracts?.header} />
-        <TableBody>
-          {contracts?.columns.map((state) => (
-            <Body key={state.stateName} state={state} />
-          ))}
-        </TableBody>
+        <Header
+          header={contracts.header}
+          filterUnitsByIcms={filterUnitsByIcms}
+          filterUnitsByCost={filterUnitsByCost}
+          filterUnitsByDeficit={filterUnitsByDeficit}
+        />
+        {Object.keys(contracts.columns).length ? (
+          <TableBody>
+            {contracts?.columns.map((state) => (
+              <Body
+                key={state.stateName}
+                state={state}
+                updateContracts={updateContracts}
+              />
+            ))}
+          </TableBody>
+        ) : (
+          "Nenhum resultado encontrado!"
+        )}
       </Table>
     </TableContainer>
   ) : null;

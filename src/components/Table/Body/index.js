@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import PropTypes from "prop-types";
 import Box from "@material-ui/core/Box";
 import Collapse from "@material-ui/core/Collapse";
@@ -6,15 +6,57 @@ import IconButton from "@material-ui/core/IconButton";
 import Table from "@material-ui/core/Table";
 import TableBody from "@material-ui/core/TableBody";
 import TableCell from "@material-ui/core/TableCell";
-import TableHead from "@material-ui/core/TableHead";
 import TableRow from "@material-ui/core/TableRow";
-import Typography from "@material-ui/core/Typography";
 import KeyboardArrowDownIcon from "@material-ui/icons/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@material-ui/icons/KeyboardArrowUp";
-import { keyframes } from "styled-components";
 
-export default function Body({ state }) {
+import { formatWithoutBRL, parseStringToFloat } from "../../../util/format";
+
+import Unit from "./Unit";
+
+export default function Body({ state, updateContracts }) {
   const [open, setOpen] = React.useState(false);
+
+  function onHandleAllocationPower(
+    event,
+    selectedUnitId,
+    selectedContractIndex
+  ) {
+    if (!event.target) {
+      return;
+    }
+
+    if (event.target.value.match(/[a-zA-Z]/g)) {
+      alert("Apenas números são aceitos");
+      return;
+    }
+
+    const allocationValue = parseStringToFloat(event.target.value);
+
+    const units = state.units.map((unit) => {
+      if (unit.unitId === selectedUnitId) {
+        const contracts = unit.contracts.map((contract, index) => {
+          if (index === selectedContractIndex) {
+            contract = allocationValue;
+          }
+          return contract;
+        });
+
+        const cost = parseStringToFloat(unit.cost.toString());
+        const deficit = formatWithoutBRL(cost - allocationValue);
+
+        return {
+          ...unit,
+          deficit,
+          cost,
+          contracts,
+        };
+      }
+      return unit;
+    });
+
+    updateContracts({ ...state, units });
+  }
 
   return (
     <React.Fragment>
@@ -51,17 +93,10 @@ export default function Body({ state }) {
               <Table size="large" aria-label="purchases">
                 <TableBody>
                   {state?.units.map((unit) => (
-                    <TableRow key={unit.unitName}>
-                      <TableCell component="th" scope="row">
-                        {unit.unitName}
-                      </TableCell>
-                      <TableCell>{unit.icms_value}</TableCell>
-                      <TableCell>{unit.cost}</TableCell>
-                      <TableCell align="right">{unit.deficit}</TableCell>
-                      {unit.contracts.map((contract) => (
-                        <TableCell align="right">{contract}</TableCell>
-                      ))}
-                    </TableRow>
+                    <Unit
+                      unit={unit}
+                      onHandleAllocationPower={onHandleAllocationPower}
+                    />
                   ))}
                 </TableBody>
               </Table>
@@ -72,21 +107,3 @@ export default function Body({ state }) {
     </React.Fragment>
   );
 }
-
-Body.propTypes = {
-  row: PropTypes.shape({
-    calories: PropTypes.number.isRequired,
-    carbs: PropTypes.number.isRequired,
-    fat: PropTypes.number.isRequired,
-    history: PropTypes.arrayOf(
-      PropTypes.shape({
-        amount: PropTypes.number.isRequired,
-        customerId: PropTypes.string.isRequired,
-        date: PropTypes.string.isRequired,
-      })
-    ).isRequired,
-    name: PropTypes.string.isRequired,
-    price: PropTypes.number.isRequired,
-    protein: PropTypes.number.isRequired,
-  }).isRequired,
-};

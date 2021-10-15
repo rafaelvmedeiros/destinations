@@ -12,5 +12,5 @@ export function formatWithoutBRL(money) {
 }
 
 export function parseStringToFloat(money) {
-  return Number(money.replace(/[^0-9\.]+/g, ""));
+  return Number(money.replace(/[^0-9%^*\/()\-+.]/g, ""));
 }

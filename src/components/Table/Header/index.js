@@ -6,14 +6,15 @@ import TableRow from "@material-ui/core/TableRow";
 import TextField from "@material-ui/core/TextField";
 import Box from "@material-ui/core/Box";
 
-function Header({ header }) {
+function Header({
+  header,
+  filterUnitsByIcms,
+  filterUnitsByCost,
+  filterUnitsByDeficit,
+}) {
   return (
     <TableHead>
       <TableRow>
-        <TableCell />
-        <TableCell />
-        <TableCell />
-
         <TableCell align="left">
           <Box
             component="form"
@@ -23,7 +24,14 @@ function Header({ header }) {
             noValidate
             autoComplete="off"
           >
-            <TextField id="outlined-basic" label="Imposto" variant="outlined" />
+            <TextField
+              id="outlined-basic"
+              label="Valor Total do ICMS"
+              variant="outlined"
+              onChange={(event) => {
+                filterUnitsByIcms(event.target.value);
+              }}
+            />
           </Box>
         </TableCell>
 
@@ -36,7 +44,14 @@ function Header({ header }) {
             noValidate
             autoComplete="off"
           >
-            <TextField id="outlined-basic" label="Imposto" variant="outlined" />
+            <TextField
+              id="outlined-basic"
+              label="Custo"
+              variant="outlined"
+              onChange={(event) => {
+                filterUnitsByCost(event.target.value);
+              }}
+            />
           </Box>
         </TableCell>
 
@@ -49,7 +64,14 @@ function Header({ header }) {
             noValidate
             autoComplete="off"
           >
-            <TextField id="outlined-basic" label="Imposto" variant="outlined" />
+            <TextField
+              id="outlined-basic"
+              label="Deficit"
+              variant="outlined"
+              onChange={(event) => {
+                filterUnitsByDeficit(event.target.value);
+              }}
+            />
           </Box>
         </TableCell>
 
